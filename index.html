@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>塾タイプ診断（アルゴリズム修正版）</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght=400;600&family=Noto+Sans+JP:wght=300;400;500&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink: #1a1a2e;
+    --fog: #f0eff5;
+    --mid: #8b8ba7;
+    --accent: #5c6bc0;
+    --accent2: #e8735a;
+    --line: #dddde8;
+    --card: #ffffff;
+  }
+
+  body {
+    font-family: 'Noto Sans JP', sans-serif;
+    background: var(--fog);
+    color: var(--ink);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem 1rem 4rem;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+  }
+
+  .eyebrow {
+    font-size: 0.7rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--mid);
+    margin-bottom: 0.6rem;
+  }
+
+  h1 {
+    font-family: 'Noto Serif JP', serif;
+    font-size: 1.6rem;
+    font-weight: 600;
+    line-height: 1.4;
+    color: var(--ink);
+  }
+
+  .sub {
+    font-size: 0.82rem;
+    color: var(--mid);
+    margin-top: 0.5rem;
+    font-weight: 300;
+  }
+
+  /* PROGRESS */
+  .progress-wrap {
+    width: 100%;
+    max-width: 520px;
+    margin-bottom: 1.8rem;
+  }
+  .progress-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.72rem;
+    color: var(--mid);
+    margin-bottom: 0.4rem;
+  }
+  .progress-bar {
+    height: 3px;
+    background: var(--line);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 2px;
+    transition: width 0.4s ease;
+  }
+
+  /* CARD */
+  .card {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 2rem 2rem 1.6rem;
+    width: 100%;
+    max-width: 520px;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.07);
+  }
+
+  .q-num {
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    color: var(--accent);
+    font-weight: 500;
+    margin-bottom: 0.6rem;
+  }
+
+  .q-text {
+    font-family: 'Noto Serif JP', serif;
+    font-size: 1.05rem;
+    line-height: 1.7;
+    margin-bottom: 1.4rem;
+    color: var(--ink);
+  }
+
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+
+  .opt {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.7rem;
+    padding: 0.75rem 0.9rem;
+    border: 1.5px solid var(--line);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+    font-size: 0.88rem;
+    line-height: 1.5;
+    color: var(--ink);
+    background: transparent;
+    text-align: left;
+    width: 100%;
+  }
+  .opt:hover { border-color: var(--accent); background: #f5f5fc; }
+  .opt.selected { border-color: var(--accent); background: #eef0fb; }
+
+  .opt-key {
+    min-width: 1.4rem;
+    font-size: 0.7rem;
+    color: var(--mid);
+    font-weight: 500;
+    padding-top: 0.1rem;
+  }
+
+  .nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1.6rem;
+  }
+
+  button.btn {
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 500;
+    padding: 0.6rem 1.4rem;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+  button.btn:disabled { opacity: 0.3; cursor: default; }
+  button.btn-ghost { background: transparent; color: var(--mid); border: 1.5px solid var(--line); }
+  button.btn-primary { background: var(--accent); color: #fff; }
+  button.btn-primary:hover:not(:disabled) { opacity: 0.85; }
+
+  /* RESULT */
+  #result { display: none; width: 100%; max-width: 520px; }
+
+  .result-header {
+    background: var(--card);
+    border-radius: 12px 12px 0 0;
+    padding: 1.8rem 2rem 1.2rem;
+    border-bottom: 1px solid var(--line);
+  }
+  .result-type {
+    font-family: 'Noto Serif JP', serif;
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: var(--accent);
+    margin-bottom: 0.3rem;
+  }
+  .result-desc {
+    font-size: 0.85rem;
+    color: var(--mid);
+    line-height: 1.6;
+  }
+
+  /* MAP */
+  .map-wrap {
+    background: var(--card);
+    padding: 1.6rem 2rem;
+    position: relative;
+  }
+  .map-title {
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    color: var(--mid);
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+
+  svg#map {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  /* DETAIL */
+  .result-detail {
+    background: var(--card);
+    padding: 1.4rem 2rem 2rem;
+    border-
