@@ -211,4 +211,422 @@
   .result-detail {
     background: var(--card);
     padding: 1.4rem 2rem 2rem;
-    border-
+    border-radius: 0 0 12px 12px;
+    border-top: 1px solid var(--line);
+  }
+  .detail-title {
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    color: var(--mid);
+    text-transform: uppercase;
+    margin-bottom: 0.8rem;
+  }
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-bottom: 1rem;
+  }
+  .tag {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.7rem;
+    border-radius: 20px;
+    background: #eef0fb;
+    color: var(--accent);
+    font-weight: 500;
+  }
+  .examples {
+    font-size: 0.82rem;
+    color: var(--mid);
+    line-height: 1.7;
+  }
+  .examples strong { color: var(--ink); }
+
+  .retry-btn {
+    display: block;
+    margin: 1.4rem auto 0;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 0.82rem;
+    color: var(--mid);
+    background: transparent;
+    border: 1.5px solid var(--line);
+    border-radius: 6px;
+    padding: 0.5rem 1.2rem;
+    cursor: pointer;
+  }
+  .retry-btn:hover { border-color: var(--accent); color: var(--accent); }
+</style>
+</head>
+<body>
+
+<header>
+  <p class="eyebrow">高校生 塾タイプ診断</p>
+  <h1>お子さんに合う塾は<br>どのタイプ？</h1>
+  <p class="sub">一緒に暮らしている保護者の方が答えてください（全10問）</p>
+</header>
+
+<div class="progress-wrap">
+  <div class="progress-label">
+    <span id="prog-label">1 / 10</span>
+    <span id="prog-pct">0%</span>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
+</div>
+
+<div class="card" id="quiz-card">
+  <p class="q-num" id="q-num">Q 01</p>
+  <p class="q-text" id="q-text"></p>
+  <div class="options" id="options"></div>
+  <div class="nav">
+    <button class="btn btn-ghost" id="btn-prev" onclick="prev()">← 戻る</button>
+    <button class="btn btn-primary" id="btn-next" onclick="next()" disabled>次へ →</button>
+  </div>
+</div>
+
+<div id="result">
+  <div class="result-header">
+    <p class="q-num">診断結果</p>
+    <p class="result-type" id="res-type"></p>
+    <p class="result-desc" id="res-desc"></p>
+  </div>
+  <div class="map-wrap">
+    <p class="map-title">マッピング</p>
+    <svg id="map" viewBox="0 0 320 300" xmlns="http://www.w3.org/2000/svg">
+      <line x1="160" y1="20" x2="160" y2="280" stroke="#dddde8" stroke-width="1"/>
+      <line x1="20" y1="150" x2="300" y2="150" stroke="#dddde8" stroke-width="1"/>
+      <text x="160" y="14" text-anchor="middle" font-size="9" fill="#8b8ba7" font-family="sans-serif">管理・伴走型</text>
+      <text x="160" y="294" text-anchor="middle" font-size="9" fill="#8b8ba7" font-family="sans-serif">自立・自走型</text>
+      <text x="14" y="153" text-anchor="middle" font-size="9" fill="#8b8ba7" font-family="sans-serif" transform="rotate(-90,14,153)">個別</text>
+      <text x="306" y="153" text-anchor="middle" font-size="9" fill="#8b8ba7" font-family="sans-serif" transform="rotate(90,306,153)">集団</text>
+
+      <text x="80" y="45" text-anchor="middle" font-size="8" fill="#c0c0d0" font-family="sans-serif">個別×管理</text>
+      <text x="240" y="45" text-anchor="middle" font-size="8" fill="#c0c0d0" font-family="sans-serif">集団×管理</text>
+      <text x="80" y="265" text-anchor="middle" font-size="8" fill="#c0c0d0" font-family="sans-serif">個別×自立</text>
+      <text x="240" y="265" text-anchor="middle" font-size="8" fill="#c0c0d0" font-family="sans-serif">集団×自立</text>
+
+      <circle cx="65" cy="90" r="18" fill="#eef0fb" stroke="#5c6bc0" stroke-width="1"/>
+      <text x="65" y="87" text-anchor="middle" font-size="7.5" fill="#5c6bc0" font-family="sans-serif" font-weight="bold">個別指導</text>
+      <text x="65" y="98" text-anchor="middle" font-size="7" fill="#5c6bc0" font-family="sans-serif">補習・習慣型</text>
+
+      <circle cx="115" cy="55" r="18" fill="#eef0fb" stroke="#5c6bc0" stroke-width="1"/>
+      <text x="115" y="52" text-anchor="middle" font-size="7.5" fill="#5c6bc0" font-family="sans-serif" font-weight="bold">武田塾型</text>
+      <text x="115" y="63" text-anchor="middle" font-size="7" fill="#5c6bc0" font-family="sans-serif">個別管理</text>
+
+      <circle cx="255" cy="70" r="18" fill="#eef0fb" stroke="#5c6bc0" stroke-width="1"/>
+      <text x="255" y="67" text-anchor="middle" font-size="7.5" fill="#5c6bc0" font-family="sans-serif" font-weight="bold">集団授業</text>
+      <text x="255" y="78" text-anchor="middle" font-size="7" fill="#5c6bc0" font-family="sans-serif">難関・競争型</text>
+
+      <circle cx="85" cy="220" r="18" fill="#eef0fb" stroke="#5c6bc0" stroke-width="1"/>
+      <text x="85" y="217" text-anchor="middle" font-size="7.5" fill="#5c6bc0" font-family="sans-serif" font-weight="bold">個別コーチ</text>
+      <text x="85" y="228" text-anchor="middle" font-size="7" fill="#5c6bc0" font-family="sans-serif">計画・伴走</text>
+
+      <circle cx="245" cy="220" r="18" fill="#eef0fb" stroke="#5c6bc0" stroke-width="1"/>
+      <text x="245" y="217" text-anchor="middle" font-size="7.5" fill="#5c6bc0" font-family="sans-serif" font-weight="bold">映像授業</text>
+      <text x="245" y="228" text-anchor="middle" font-size="7" fill="#5c6bc0" font-family="sans-serif">マイペース自立</text>
+
+      <circle id="res-dot" cx="160" cy="150" r="10" fill="#e8735a" stroke="white" stroke-width="2" opacity="0"/>
+      <text id="res-dot-label" x="160" y="175" text-anchor="middle" font-size="8" fill="#e8735a" font-family="sans-serif" font-weight="bold" opacity="0">あなたの子</text>
+    </svg>
+  </div>
+  <div class="result-detail">
+    <p class="detail-title">おすすめポイント</p>
+    <div class="tags" id="res-tags"></div>
+    <p class="examples" id="res-examples"></p>
+  </div>
+  <button class="retry-btn" onclick="retry()">もう一度診断する</button>
+</div>
+
+<script>
+// アルゴリズムを2軸（individual: 個別 vs 集団 / autonomous: 管理 vs 自立）に完全統合
+const questions = [
+  {
+    text: "宿題や課題を、言わなくても自分でこなしていますか？",
+    axis: "autonomous", // high = 管理が必要（上）, low = 自立（下）
+    opts: [
+      { label: "ほぼ毎回、自分からやっている", val: -2 },
+      { label: "声をかければやる", val: -1 },
+      { label: "かなり促さないと動かない", val: 1 },
+      { label: "促してもなかなかやらない", val: 2 },
+    ]
+  },
+  {
+    text: "授業中や勉強中、わからない問題があったときの反応は？",
+    axis: "individual", // high = 個別（左）, low = 集団（右）
+    opts: [
+      { label: "すぐ誰かに聞く（先生・親など）", val: 2 },
+      { label: "少し考えてから聞く", val: 1 },
+      { label: "自分で調べて解決しようとする", val: -1 },
+      { label: "わからないまま放置することが多い", val: 0 }, // 放置は管理軸に影響すべきだが個別軸ではニュートラルに
+    ]
+  },
+  {
+    text: "同学年の友人と一緒に勉強することについて、子どもはどう感じていますか？",
+    axis: "individual", // 集団の環境を好むか
+    opts: [
+      { label: "好き。周囲の視線やライバルが刺激になる", val: -2 },
+      { label: "どちらでも構わない", val: 0 },
+      { label: "苦手。自分のペースが乱れる、または緊張する", val: 2 },
+    ]
+  },
+  {
+    text: "学校の定期テストの勉強は、いつ頃から始めますか？",
+    axis: "autonomous",
+    opts: [
+      { label: "2〜3週間前から計画的に進める", val: -2 },
+      { label: "1週間前から手をつけ始める", val: -1 },
+      { label: "前日〜数日前から焦ってやる", val: 1 },
+      { label: "ほとんど勉強しない", val: 2 },
+    ]
+  },
+  {
+    text: "目標とする大学のレベルや受験への熱量はどのくらいですか？",
+    axis: "individual", // 難関大一斉カリキュラム（集団）向きか、志望校特化（個別）向きか
+    opts: [
+      { label: "明確に決まっており、難関国公立・早慶などを狙いたい", val: -1 },
+      { label: "なんとなく決まっているが、実力に合わせた指導が欲しい", val: 1 },
+      { label: "まだ決まっていない、または基礎からじっくりやりたい", val: 2 },
+    ]
+  },
+  {
+    text: "先生や大人に対して、自分から質問や相談ができますか？",
+    axis: "individual",
+    opts: [
+      { label: "自分から積極的に質問に行ける", val: -2 }, // 自発的に行けるなら集団や映像でも詰まらない
+      { label: "必要であれば聞けるが、少し緊張する", val: -1 },
+      { label: "なかなか自分からは声をかけられない", val: 1 },
+      { label: "話しかけられるまでずっと黙っている", val: 2 },
+    ]
+  },
+  {
+    text: "スマホやゲームなど、勉強の妨げになる誘惑に対して自制できていますか？",
+    axis: "autonomous",
+    opts: [
+      { label: "自分でルールを決めて、うまく管理できている", val: -2 },
+      { label: "ときどき誘惑に負けてしまう", val: 0 },
+      { label: "自分の意志でコントロールするのはかなり難しい", val: 2 },
+    ]
+  },
+  {
+    text: "子どもはどんな説明スタイルで理解しやすいですか？",
+    axis: "individual",
+    opts: [
+      { label: "一対一で自分の弱点に合わせて解説される方が定着する", val: 2 },
+      { label: "体系化されたプロの講義をしっかり聴く方が集中できる", val: -2 },
+      { label: "解説を読むなど、自分のペースで進める方が楽", val: 0 },
+    ]
+  },
+  {
+    text: "受験勉強に対して、子どもは今どんな姿勢ですか？",
+    axis: "autonomous",
+    opts: [
+      { label: "自分で情報を集め、意欲的に戦略を立てようとしている", val: -2 },
+      { label: "やる気はあるが、何から手をつければいいか迷っている", val: 1 },
+      { label: "現時点ではモチベーションが低く、勉強を避けている", val: 2 },
+    ]
+  },
+  {
+    text: "費用や通塾スケジュール、受講の柔軟性に関するスタンスは？",
+    axis: "autonomous", // 柔軟性＝自立型（スケジュール縛りなし）、固定管理＝管理型
+    opts: [
+      { label: "多少厳しくても、曜日や時間が固定された強制力が欲しい", val: 2 },
+      { label: "部活や習い事に合わせて、柔軟に予定を組みたい", val: -2 },
+      { label: "どちらでも柔軟に対応できる", val: 0 },
+    ]
+  },
+];
+
+let current = 0;
+let answers = new Array(questions.length).fill(null);
+
+function render() {
+  const q = questions[current];
+  document.getElementById('q-num').textContent = `Q ${String(current+1).padStart(2,'0')}`;
+  document.getElementById('q-text').textContent = q.text;
+
+  const optsEl = document.getElementById('options');
+  optsEl.innerHTML = '';
+  const keys = ['A','B','C','D'];
+  q.opts.forEach((o, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'opt' + (answers[current] === i ? ' selected' : '');
+    btn.innerHTML = `<span class="opt-key">${keys[i]}</span><span>${o.label}</span>`;
+    btn.onclick = () => select(i);
+    optsEl.appendChild(btn);
+  });
+
+  const pct = Math.round(current / questions.length * 100);
+  document.getElementById('prog-label').textContent = `${current+1} / ${questions.length}`;
+  document.getElementById('prog-pct').textContent = pct + '%';
+  document.getElementById('prog-fill').style.width = pct + '%';
+
+  document.getElementById('btn-prev').disabled = current === 0;
+  document.getElementById('btn-next').disabled = answers[current] === null;
+  document.getElementById('btn-next').textContent = current === questions.length - 1 ? '結果を見る' : '次へ →';
+}
+
+function select(i) {
+  answers[current] = i;
+  document.querySelectorAll('.opt').forEach((el, idx) => {
+    el.classList.toggle('selected', idx === i);
+  });
+  document.getElementById('btn-next').disabled = false;
+}
+
+function next() {
+  if (answers[current] === null) return;
+  if (current === questions.length - 1) { showResult(); return; }
+  current++;
+  render();
+}
+
+function prev() {
+  if (current === 0) return;
+  current--;
+  render();
+}
+
+// 2軸のスコアおよび最大最小の範囲を算出して正規化する
+function calcScores() {
+  let indivScore = 0;
+  let autoScore = 0;
+  
+  // 各軸の理論上の最大・最小値を計算するための変数
+  let maxIndiv = 0, minIndiv = 0;
+  let maxAuto = 0, minAuto = 0;
+
+  questions.forEach((q, i) => {
+    // 理論上の最大最小を累積
+    const vals = q.opts.map(o => o.val);
+    if (q.axis === 'individual') {
+      maxIndiv += Math.max(...vals);
+      minIndiv += Math.min(...vals);
+    } else if (q.axis === 'autonomous') {
+      maxAuto += Math.max(...vals);
+      minAuto += Math.min(...vals);
+    }
+
+    // ユーザーの実スコア
+    if (answers[i] !== null) {
+      const val = q.opts[answers[i]].val;
+      if (q.axis === 'individual') indivScore += val;
+      if (q.axis === 'autonomous') autoScore += val;
+    }
+  });
+
+  // -1.0 〜 +1.0 の範囲に正規化
+  const normIndiv = (indivScore >= 0) ? (indivScore / maxIndiv) : -(indivScore / minIndiv);
+  const normAuto = (autoScore >= 0) ? (autoScore / maxAuto) : -(autoScore / minAuto);
+
+  return { normIndiv, normAuto };
+}
+
+const types = {
+  '個別管理型（補習・習慣化）': {
+    desc: '先生が隣につき、日々の勉強習慣や基礎固めを徹底的に管理してくれる環境が合っています。わからないところをその場で質問できる安心感がモチベーションに繋がります。',
+    tags: ['個別指導', '丁寧な解説', '宿題管理', '基礎からのステップアップ'],
+    examples: '<strong>向いている塾：</strong>個別教室のトライ、明光義塾、スクールIE、ITTO個別指導学院など<br><strong>ポイント：</strong>優しすぎず、適度なプロの目で行き届いた学習管理をしてくれる教室を選びましょう。'
+  },
+  '武田塾型（個別管理×自学自習）': {
+    desc: '「授業」を受けるよりも、「何をいつまでにどう勉強するか」を指定され、サボれない仕組みを作る方が劇的に伸びるタイプです。毎日の宿題管理と週1回の確認テストで強制的に自学自習を突き詰めます。',
+    tags: ['参考書ルート', '毎日の宿題指定', '完全1対1管理', '逆転合格'],
+    examples: '<strong>向いている塾：</strong>武田塾、CASTDICE、その他の宿題徹底管理型塾<br><strong>ポイント：</strong>確認テストのチェックが厳格か、講師がペース維持をリードしてくれるかが鍵です。'
+  },
+  '集団難関型（競争・カリキュラム）': {
+    desc: '周囲のハイレベルなライバルたちと競い合い、洗練された集団授業のカリキュラムに乗ることで実力を発揮するタイプです。質問力や自制心が一定以上あるため、大手塾の環境を最大限活かせます。',
+    tags: ['集団授業', '地域大手・予備校', 'ライバルとの競争', '完成されたカリキュラム'],
+    examples: '<strong>向いている塾：</strong>駿台予備学校、河合塾、鉄緑会、地域のトップ進学塾など<br><strong>ポイント：</strong>上位クラスを維持できるか、授業についていけなくなった時のフォロー体制があるかを確認してください。'
+  },
+  '個別コーチング型（計画・伴走）': {
+    desc: '自分で勉強を進めるポテンシャルはありますが、「正しい戦略」や「客観的な計画」のサポートを求めているタイプです。過干渉な授業は不要で、週1回の面談などで軌道修正してくれるコーチが最適です。',
+    tags: ['週間計画作成', 'オンラインコーチング', '自走力の育成', '質問重点型'],
+    examples: '<strong>向いている塾：</strong>STRUX、スタディコーチ、トウコベ（オンライン家庭教師含む）など<br><strong>ポイント：</strong>コーチとなる先輩（大学生・プロ）との相性や、チャットでの質問対応の手軽さをチェック。'
+  },
+  '映像自立型（マイペース・効率重視）': {
+    desc: '自分のペースでどんどん先取り学習を進めたい、または部活と両立して柔軟に受講したい自立型タイプです。質の高い映像授業を武器に、自習室にこもって圧倒的な時間数をこなせます。',
+    tags: ['映像授業', '高速先取り学習', 'スケジュールの柔軟性', '自習室の活用'],
+    examples: '<strong>向いている塾：</strong>東進衛星予備校、河合塾マナビス、スタディサプリ＋自習室など<br><strong>ポイント：</strong>担任（チューター）による進捗チェックが形骸化していないか、相談しやすい環境かを確認しましょう。'
+  },
+  'バランス総合型': {
+    desc: '管理と自立、個別と集団のバランスが良く、どんな環境にも適応しやすいタイプです。塾の自習室を活用しつつ、適度にチューターや講師を頼ることで安定して成績を伸ばせます。',
+    tags: ['併用・総合型', '自習室充実', '定期面談あり', 'バランスの取れた負荷'],
+    examples: '<strong>向いている塾：</strong>四谷学院（55段階）、代々木ゼミナール、中堅規模の総合学習塾など<br><strong>ポイント：</strong>お子さんが「どのサポートを一番求めているか」に応じて、オプションやコースを選びましょう。'
+  },
+};
+
+function showResult() {
+  const s = calcScores();
+
+  // スコアは -1.0 〜 +1.0 の範囲。これをSVGの座標(20〜300, 20〜280)に変換
+  // 横軸(indiv): 160を中心。プラス(個別)は左へ(-120)、マイナス(集団)は右へ(+120)
+  // 縦軸(auto):  150を中心。プラス(管理)は上へ(-110)、マイナス(自立)は下へ(+110)
+  const cx = 160 - (s.normIndiv * 120);
+  const cy = 150 - (s.normAuto * 110);
+
+  // 判定ロジックの厳格化
+  let type;
+  if (s.normAuto > 0.25) {
+    // 上半分（管理強め）
+    if (s.normIndiv > 0.4) {
+      type = '個別管理型（補習・習慣化）';
+    } else if (s.normIndiv > -0.1) {
+      type = '武田塾型（個別管理×自学自習）';
+    } else {
+      type = '集団難関型（競争・カリキュラム）'; // 管理軸が高く、集団寄りの場合は大手予備校のカリキュラム管理
+    }
+  } else if (s.normAuto < -0.25) {
+    // 下半分（自立強め）
+    if (s.normIndiv > 0.2) {
+      type = '個別コーチング型（計画・伴走）';
+    } else {
+      type = '映像自立型（マイペース・効率重視）';
+    }
+  } else {
+    // 中央のバランス型
+    if (s.normIndiv > 0.5) {
+      type = '個別管理型（補習・習慣化）';
+    } else if (s.normIndiv < -0.5) {
+      type = '集団難関型（競争・カリキュラム）';
+    } else {
+      type = 'バランス総合型';
+    }
+  }
+
+  const t = types[type];
+
+  document.getElementById('quiz-card').style.display = 'none';
+  document.querySelector('.progress-wrap').style.display = 'none';
+  document.getElementById('result').style.display = 'block';
+
+  document.getElementById('res-type').textContent = type;
+  document.getElementById('res-desc').textContent = t.desc;
+
+  const tagsEl = document.getElementById('res-tags');
+  tagsEl.innerHTML = t.tags.map(tag => `<span class="tag">${tag}</span>`).join('');
+  document.getElementById('res-examples').innerHTML = t.examples;
+
+  // 動的なドットアニメーション
+  const dot = document.getElementById('res-dot');
+  const dotLabel = document.getElementById('res-dot-label');
+  dot.setAttribute('cx', cx);
+  dot.setAttribute('cy', cy);
+  dotLabel.setAttribute('x', cx);
+  dotLabel.setAttribute('y', Math.min(cy + 18, 285));
+  setTimeout(() => {
+    dot.setAttribute('opacity', '1');
+    dotLabel.setAttribute('opacity', '1');
+  }, 300);
+}
+
+function retry() {
+  current = 0;
+  answers = new Array(questions.length).fill(null);
+  document.getElementById('quiz-card').style.display = 'block';
+  document.querySelector('.progress-wrap').style.display = 'block';
+  document.getElementById('result').style.display = 'none';
+  render();
+}
+
+render();
+</script>
+</body>
+</html>
